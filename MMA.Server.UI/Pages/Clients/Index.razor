@@ -1,0 +1,106 @@
+﻿@page "/clients/"
+
+@inject IClientService clientService
+@inject IJSRuntime js
+
+<h3>Clients</h3>
+
+@if (response.Success == false)
+{
+  <div class="alert alert-danger">
+    <h4>@response.Message</h4>
+  </div>
+}
+else
+{
+  @if (Clients == null)
+  {
+    <div class="alert alert-info">
+      <h4>Loading Data...</h4>
+    </div>
+  }
+  else
+  {
+    <AuthorizeView Roles="Administrator">
+      <a class="btn btn-dark" href="/clients/create"><span class="oi oi-plus" aria-hidden="true"></span> Create </a>
+    </AuthorizeView>
+    <br />
+    <table class="table table-responsive">
+      <thead>
+        <tr>
+          <th>Acc No.</th>
+          <th>Client Name</th>
+          <th>Region</th>
+          <th>Customer Type</th>
+          <th>Case Man Contact</th>
+          <th>Contact Number</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var cli in Clients)
+        {
+          <tr>
+            <td>@cli.AccountNo</td>
+            <td>@cli.ClientName</td>
+            <td>@cli.Region</td>
+            <td>@cli.Type</td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <a class="btn btn-primary" href="/clients/details/@cli.Id"> <span class="oi oi-book" aria-hidden="true"></span> Details </a>
+              <AuthorizeView Roles="Administrator">
+                <a class="btn btn-warning" href="/clients/update/@cli.Id"> <span class="oi oi-pencil" aria-hidden="true"></span> Edit </a>
+                <button class="btn btn-danger" @onclick=@(() => Delete(@cli.Id))> <span class="oi oi-delete" aria-hidden="true"></span> Delete </button>
+              </AuthorizeView>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}
+
+@code {
+  //public class ClientModel
+  //{
+  //  public string? AccountNo { get; set; }
+  //  public string? ClientName { get; set; }
+  //  public string? Region { get; set; }
+  //  public string? Type { get; set; }
+  //  public string? CaseManContact { get; set; }
+  //  public string? Phone { get; set; }
+  //  public string? EmailAddress { get; set; }
+
+  //}
+
+  //private List<ClientModel>? lstClientModel;
+  private List<DtoClientOnly> Clients;
+  private Response<List<DtoClientOnly>> response = new Response<List<DtoClientOnly>> { Success = true };
+
+  protected override async Task OnInitializedAsync()
+  {
+    response = await clientService.Get();
+    if (response.Success)
+    {
+      Clients = response.Data;
+    }
+  }
+
+  private async Task Delete(int clientId)
+  {
+    var cli = Clients.First(q => q.Id == clientId);
+    var confirm = await js.InvokeAsync<bool>("confirm", $"Are You Sure You Want To Delete {cli.ClientName}?");
+    if (confirm)
+    {
+      var response = await clientService.Delete(clientId);
+      if (response.Success)
+      {
+        await OnInitializedAsync();
+      }
+    }
+  }
+}
+

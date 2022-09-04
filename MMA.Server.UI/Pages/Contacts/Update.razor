@@ -1,0 +1,106 @@
+﻿@page "/contacts/update/{id:int}"
+@attribute [Authorize(Roles = Roles.Administrator)]
+@inject IContactService contactService
+@inject IClientService clientService
+@inject NavigationManager navManager
+
+<h3>Edit Contact</h3>
+
+<EditForm Model="Contact" OnValidSubmit="HandleContactUpdate">
+  <DataAnnotationsValidator />
+  <ValidationSummary />
+  <br />
+  <div class="form-group">
+    <label for="contacttype">Type</label>
+    <InputText @bind-Value="Contact.ContactType" class="form-control" id="contacttype" />
+    <ValidationMessage For="@(() => Contact.ContactType)" />
+  </div>
+  <br />
+  <div class="form-group">
+    <label for="title">Title</label>
+    <InputText @bind-Value="Contact.Title" class="form-control" id="title" />
+    <ValidationMessage For="@(() => Contact.Title)" />
+  </div>
+  <br />
+
+  <div class="form-group">
+    <label for="fullname">Full Name</label>
+    <InputText @bind-Value="Contact.FullName" class="form-control" id="fullname" />
+    <ValidationMessage For="@(() => Contact.FullName)" />
+  </div>
+  <br />
+  <div class="form-group">
+    <label for="phone">Phone</label>
+    <InputText @bind-Value="Contact.Phone" class="form-control" id="phone" />
+    <ValidationMessage For="@(() => Contact.Phone)" />
+  </div>
+  <br />
+  <div class="form-group">
+    <label for="emailaddress">Email</label>
+    <InputText @bind-Value="Contact.EmailAddress" class="form-control" id="emailaddress" />
+    <ValidationMessage For="@(() => Contact.EmailAddress)" />
+  </div>
+  <br />
+
+  <div class="form-group">
+    <label for="Client">Client</label>
+    <InputSelect @bind-Value="Contact.ClientId" class="form-select" id="client">
+      <option value="">-- Select Client --</option>
+      @foreach (var clnt in Clients)
+      {
+        <option value="@clnt.Id">@clnt.ClientName</option>
+      }
+    </InputSelect>
+    <ValidationMessage For="@(() => Contact.ClientId)" />
+  </div>
+  <br />
+
+  <button class="btn btn-primary" type="submit">
+    <span class="oi oi-pencil"></span>
+    Create Book
+  </button>
+  <button @onclick="BackToList" class="btn btn-outline-secondary" type="button">
+    <span class="oi oi-media-skip-backward"></span>
+    Back To List
+  </button>
+
+</EditForm>
+
+@code {
+  [Parameter]
+  public int id { get; set; }
+
+  private DtoContactUpdate Contact = new DtoContactUpdate();
+  private List<DtoClientOnly> Clients = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    var clientResponse = await clientService.Get();
+    if (clientResponse.Success)
+    {
+      Clients = clientResponse.Data;
+    }
+
+    var contactResponse = await contactService.GetForUpdate(id);
+    if (contactResponse.Success)
+    {
+      Contact = contactResponse.Data;
+    }
+  }
+
+  private async Task HandleContactUpdate()
+  {
+    var response = await contactService.Edit(id, Contact);
+    if (response.Success)
+    {
+      BackToList();
+    }
+  }
+
+  private void BackToList()
+  {
+    navManager.NavigateTo("/contacts/");
+  }
+
+
+}

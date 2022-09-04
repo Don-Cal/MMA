@@ -1,0 +1,90 @@
+﻿@page "/contacts/"
+@inject IContactService contactService
+@inject IJSRuntime js
+<h3>Contacts</h3>
+
+
+@if (response.Success == false)
+{
+  <div class="alert alert-danger">
+    <h4>@response.Message</h4>
+  </div>
+}
+else
+{
+  @if (Contacts == null)
+  {
+    <div class="alert alert-info">
+      <h4>Loading Data...</h4>
+    </div>
+  }
+  else
+  {
+    <AuthorizeView Roles="Administrator">
+      <a class="btn btn-dark" href="/contacts/create"><span class="oi oi-plus" aria-hidden="true"></span> Create </a>
+    </AuthorizeView>
+    <br />
+    <table class="table table-responsive">
+      <thead>
+        <tr>
+          <th>ContactType</th>
+          <th>Title</th>
+          <th>FullName</th>
+          <th>Phone</th>
+          <th>Email</th>
+          <th>Client</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var contact in Contacts)
+        {
+          <tr>
+            <td>@contact.ContactType</td>
+            <td>@contact.Title</td>
+            <td>@contact.FullName</td>
+            <td>@contact.Phone</td>
+            <td>@contact.EmailAddress</td>
+            <td><a class="btn btn-link" href="/contacts/details/@contact.ClientId">@contact.ClientName </a></td>
+            <td>
+              <a class="btn btn-primary" href="/contacts/details/@contact.Id"> <span class="oi oi-book" aria-hidden="true"></span> Details </a>
+              <AuthorizeView Roles="Administrator">
+                <a class="btn btn-warning" href="/contacts/update/@contact.Id"> <span class="oi oi-pencil" aria-hidden="true"></span> Edit </a>
+                <button class="btn btn-danger" @onclick=@(() => Delete(@contact.Id))> <span class="oi oi-delete" aria-hidden="true"></span> Delete </button>
+              </AuthorizeView>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+}
+
+
+@code {
+  private List<DtoContactOnly> Contacts;
+  private Response<List<DtoContactOnly>> response = new Response<List<DtoContactOnly>> { Success = true };
+
+  protected override async Task OnInitializedAsync()
+  {
+    response = await contactService.Get();
+    if (response.Success)
+    {
+      Contacts = response.Data;
+    }
+  }
+
+  private async Task Delete(int contactId)
+  {
+    var contact = Contacts.First(q => q.Id == contactId);
+    var confirm = await js.InvokeAsync<bool>("confirm", $"Are You Sure You Want To Delete {contact.Title} {contact.FullName}?");
+    if (confirm)
+    {
+      var response = await contactService.Delete(contactId);
+      if (response.Success)
+      {
+        await OnInitializedAsync();
+      }
+    }
+  }
+}

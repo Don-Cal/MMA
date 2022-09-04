@@ -1,0 +1,84 @@
+﻿@page "/contacts/details/{id:int}"
+@inject IContactService contactService
+@inject NavigationManager navManager
+
+<h3>Contact Details</h3>
+
+@if (Contact == null)
+{
+  <p>Loading...</p>
+}
+else
+{
+<EditForm Model="Contact">
+  <fieldset disabled="true">
+
+      <div class="form-group">
+        <label for="contacttype">Type</label>
+        <InputText @bind-Value="Contact.ContactType" class="form-control" id="contacttype" />
+        <ValidationMessage For="@(() => Contact.ContactType)" />
+      </div>
+      <br />
+      <div class="form-group">
+        <label for="title">Title</label>
+        <InputText @bind-Value="Contact.Title" class="form-control" id="title" />
+        <ValidationMessage For="@(() => Contact.Title)" />
+      </div>
+      <br />
+
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <InputText @bind-Value="Contact.FullName" class="form-control" id="fullname" />
+        <ValidationMessage For="@(() => Contact.FullName)" />
+      </div>
+      <br />
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <InputText @bind-Value="Contact.Phone" class="form-control" id="phone" />
+        <ValidationMessage For="@(() => Contact.Phone)" />
+      </div>
+      <br />
+      <div class="form-group">
+        <label for="emailaddress">Email</label>
+        <InputText @bind-Value="Contact.EmailAddress" class="form-control" id="emailaddress" />
+        <ValidationMessage For="@(() => Contact.EmailAddress)" />
+      </div>
+      <br />
+    </fieldset>
+
+  <br />
+  <button @onclick="GoToEdit" class="btn btn-warning">
+    <span class="oi oi-pencil"></span>
+    Edit Contact
+  </button>
+  <button @onclick="BackToList" class="btn btn-outline-secondary">
+    <span class="oi oi-media-skip-backward"></span>
+    Back To List
+  </button>
+</EditForm>
+}
+
+@code {
+  [Parameter]
+  public int id { get; set; }
+
+  private DtoContactOnly Contact = new DtoContactOnly();
+
+  protected async override Task OnInitializedAsync()
+  {
+    var response = await contactService.Get(id);
+    if (response.Success)
+    {
+      Contact = response.Data;
+    }
+  }
+
+  private void GoToEdit()
+  {
+    navManager.NavigateTo($"/contacts/update/{Contact.Id}");
+  }
+  private void BackToList()
+  {
+    navManager.NavigateTo("/contacts/");
+  }
+}

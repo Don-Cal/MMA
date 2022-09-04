@@ -1,0 +1,202 @@
+﻿@page "/clients/details/{id:int}"
+@inject IClientService clientService
+@inject NavigationManager navManager
+
+<h3>Client Details</h3>
+
+@if (Clnt == null)
+{
+  <p>Loading...</p>
+}
+else
+{
+<EditForm Model="@Clnt">
+  <fieldset disabled="true">
+
+    <div class="form-group">
+      <label for="clientname">Client Name</label>
+      <InputText @bind-Value="Clnt.ClientName" class="form-control" id="clientname" />
+      <ValidationMessage For="@(() => Clnt.ClientName)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="type">Type</label>
+      <InputText @bind-Value="Clnt.Type" class="form-control" id="type" />
+      <ValidationMessage For="@(() => Clnt.Type)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="region">Region</label>
+      <InputText @bind-Value="Clnt.Region" class="form-control" id="region" />
+      <ValidationMessage For="@(() => Clnt.Region)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="address1">Address1</label>
+      <InputText @bind-Value="Clnt.Address1" class="form-control" id="address1" />
+      <ValidationMessage For="@(() => Clnt.Address1)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="address2">Address2</label>
+      <InputText @bind-Value="Clnt.Address2" class="form-control" id="address2" />
+      <ValidationMessage For="@(() => Clnt.Address2)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="address3">Address3</label>
+      <InputText @bind-Value="Clnt.Address3" class="form-control" id="address3" />
+      <ValidationMessage For="@(() => Clnt.Address3)" />
+    </div>
+    <br />
+
+    <div class="form-group">
+      <label for="city">City</label>
+      <InputText @bind-Value="Clnt.City" class="form-control" id="city" />
+      <ValidationMessage For="@(() => Clnt.City)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="state">State</label>
+      <InputText @bind-Value="Clnt.State" class="form-control" id="state" />
+      <ValidationMessage For="@(() => Clnt.State)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="postcode">Postcode</label>
+      <InputText @bind-Value="Clnt.Postcode" class="form-control" id="postcode" />
+      <ValidationMessage For="@(() => Clnt.Postcode)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="country">Country</label>
+      <InputText @bind-Value="Clnt.Country" class="form-control" id="country" />
+      <ValidationMessage For="@(() => Clnt.Country)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="phone">Phone</label>
+      <InputText @bind-Value="Clnt.Phone" class="form-control" id="phone" />
+      <ValidationMessage For="@(() => Clnt.Phone)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="emailaddress">Email</label>
+      <InputText @bind-Value="Clnt.EmailAddress" class="form-control" id="emailaddress" />
+      <ValidationMessage For="@(() => Clnt.EmailAddress)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="regno">RegNo</label>
+      <InputText @bind-Value="Clnt.RegNo" class="form-control" id="regno" />
+      <ValidationMessage For="@(() => Clnt.RegNo)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="vatno">VatNo</label>
+      <InputText @bind-Value="Clnt.VatNo" class="form-control" id="vatno" />
+      <ValidationMessage For="@(() => Clnt.VatNo)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="accountno">Accountno</label>
+      <InputText @bind-Value="Clnt.AccountNo" class="form-control" id="accountno" />
+      <ValidationMessage For="@(() => Clnt.AccountNo)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="currency">Currency</label>
+      <InputText @bind-Value="Clnt.Currency" class="form-control" id="currency" />
+      <ValidationMessage For="@(() => Clnt.Currency)" />
+    </div>
+    <br />
+    <div class="form-group">
+      <label for="paymentterms">PaymentTerms</label>
+      <InputText @bind-Value="Clnt.PaymentTerms" class="form-control" id="paymentterms" />
+      <ValidationMessage For="@(() => Clnt.PaymentTerms)" />
+    </div>
+    <br />
+
+    @*    <div class="form-group">
+    <label for="applydiscount">ApplyDiscount</label>
+    <input type="checkbox" @(Clnt.ApplyDiscount?"checked='checked'":"") class="form-control" id="applydiscount" />
+    <ValidationMessage For="@(() => Clnt.ApplyDiscount)" />
+    </div>
+    <br />
+    *@
+    <div class="form-group">
+      <label for="discountfee">DiscountFee</label>
+      <InputText @bind-Value="Clnt.DiscountFee" class="form-control" id="discountfee" />
+      <ValidationMessage For="@(() => Clnt.DiscountFee)" />
+    </div>
+    <br />
+  </fieldset>
+
+  @if (Clnt.Contacts == null || Clnt.Contacts.Any() == false)
+  {
+    <div class="alert alert-dismissible alert-secondary">
+      No Contacts for this Client.
+    </div>
+  }
+  else
+  {
+    <div>
+      <table>
+        <tr>
+          <th>Contact Type</th>
+          <th>Title</th>
+          <th>FullName</th>
+          <th>Phone</th>
+          <th>Email</th>
+        </tr>
+        @foreach (var c in Clnt.Contacts)
+        {
+        <tr>
+          <td>@c.ContactType</td>
+          <td>@c.Title</td>
+          <td>@c.FullName</td>
+          <td>@c.Phone</td>
+          <td>@c.EmailAddress</td>
+        </tr>
+        }
+      </table>
+    </div>
+  }
+
+
+  <br />
+  <button @onclick="GoToEdit" class="btn btn-warning">
+    <span class="oi oi-pencil"></span>
+    Edit Client
+  </button>
+  <button @onclick="BackToList" class="btn btn-outline-secondary">
+    <span class="oi oi-media-skip-backward"></span>
+    Back To List
+  </button>
+</EditForm>
+}
+
+@code {
+  [Parameter]
+  public int id { get; set; }
+
+  private DtoClient Clnt = new DtoClient();
+
+  protected async override Task OnInitializedAsync()
+  {
+    var response = await clientService.Get(id);
+    if (response.Success)
+    {
+      Clnt = response.Data;
+    }
+  }
+
+  private void GoToEdit()
+  {
+    navManager.NavigateTo($"/clients/update/{Clnt.Id}");
+  }
+  private void BackToList()
+  {
+    navManager.NavigateTo("/clients/");
+  }
+}
